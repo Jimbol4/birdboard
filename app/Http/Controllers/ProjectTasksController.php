@@ -5,9 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Project;
 
-class ProjectsController extends Controller
+class ProjectTasksController extends Controller
 {
-
     /**
      * Display a listing of the resource.
      *
@@ -15,9 +14,7 @@ class ProjectsController extends Controller
      */
     public function index()
     {
-        $projects = auth()->user()->projects;
-
-        return view('projects.index', compact('projects'));
+        //
     }
 
     /**
@@ -27,7 +24,7 @@ class ProjectsController extends Controller
      */
     public function create()
     {
-        return view('projects.create');
+        //
     }
 
     /**
@@ -36,16 +33,15 @@ class ProjectsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, Project $project)
     {
-        $attributes = request()->validate([
-            'title' => 'required', 
-            'description' => 'required'
+        $this->validate($request, [
+            'body' => 'required'
         ]);
 
-        auth()->user()->projects()->create($attributes);
+        $project->addTask(request('body'));
 
-        return redirect('projects');
+        return redirect($project->path());
     }
 
     /**
@@ -54,13 +50,9 @@ class ProjectsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Project $project)
+    public function show($id)
     {
-        if (auth()->user()->isNot($project->owner)) {
-            abort(403);
-        }
-
-        return view('projects.show', compact('project'));
+        //
     }
 
     /**
