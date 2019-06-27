@@ -9,5 +9,6 @@ use App\Task;
 $factory->define(Task::class, function (Faker $faker) {
     return [
         'body' => $faker->paragraph,
+        'project_id' => factory('App\Project'),
     ];
 });

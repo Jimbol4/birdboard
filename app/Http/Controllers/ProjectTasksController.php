@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Project;
+use App\Task;
 
 class ProjectTasksController extends Controller
 {
@@ -35,6 +36,8 @@ class ProjectTasksController extends Controller
      */
     public function store(Request $request, Project $project)
     {
+        $this->authorize('update', $project);
+
         $this->validate($request, [
             'body' => 'required'
         ]);
@@ -73,9 +76,20 @@ class ProjectTasksController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Project $project, Task $task)
     {
-        //
+        $this->authorize('update', $task->project);
+
+        $this->validate($request, [
+            'body' => 'required'
+        ]);
+
+        $task->update([
+            'body' => request('body'),
+            'completed' => request()->has('completed'),
+        ]);
+
+        return redirect($project->path());
     }
 
     /**

@@ -29,7 +29,9 @@ class ProjectTest extends TestCase
     /** @test */
     public function it_can_add_a_task()
     {
-        $project = factory('App\Project')->create();
+        $this->signIn();
+
+        $project = factory('App\Project')->create(['owner_id' => auth()->user()->id]);
 
         $task = $project->addTask('Test task');
 
