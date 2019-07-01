@@ -6,6 +6,7 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Project;
+use Facades\Tests\Setup\ProjectFactory;
 
 class ManageProjectsTest extends TestCase
 {
@@ -14,7 +15,6 @@ class ManageProjectsTest extends TestCase
     /** @test */
     public function a_user_can_create_a_project()
     {
-        $this->withoutExceptionHandling();
         $this->signIn();
 
         $this->get('/projects/create')->assertStatus(200);
@@ -31,8 +31,6 @@ class ManageProjectsTest extends TestCase
         
         $response->assertRedirect($project->path());
 
-        $this->assertDatabaseHas('projects', $attributes);
-
         $this->get($project->path())
             ->assertSee($attributes['title'])
             ->assertSee($attributes['description'])
@@ -42,12 +40,32 @@ class ManageProjectsTest extends TestCase
     /** @test */
     public function a_user_can_update_a_project()
     {
-        $this->signIn();
+        $this->withoutExceptionHandling();
+        $project = ProjectFactory::ownedBy($this->signIn())->create();
 
-        $project = factory('App\Project')->create(['owner_id' => auth()->user()->id]);
+        $this->patch($project->path(), ['title' => 'Changed title', 'description' => 'Updated description'])
+            ->assertRedirect($project->path());
+
+        $this->get($project->path() . '/edit')->assertStatus(200);
+
+        $this->assertDatabaseHas('projects', ['title' => 'Changed title', 'description' => 'Updated description']);
+
+        $this->get($project->path())
+            ->assertSee('Changed title')
+            ->assertSee('Updated description');
+    }
+
+    /** @test */
+    public function a_user_can_update_a_projects_general_notes()
+    {   
+        $this->withoutExceptionHandling();
+
+        $project = ProjectFactory::ownedBy($this->signIn())->create();
 
         $this->patch($project->path(), ['notes' => 'Updated notes for project'])
             ->assertRedirect($project->path());
+
+        $this->get($project->path() . '/edit')->assertStatus(200);
 
         $this->assertDatabaseHas('projects', ['notes' => 'Updated notes for project']);
 
@@ -76,6 +94,9 @@ class ManageProjectsTest extends TestCase
             ->assertRedirect('login');
 
         $this->get('/projects/create')
+            ->assertRedirect('login');
+
+        $this->get($project->path() . '/edit')
             ->assertRedirect('login');
         
         $this->get($project->path())
