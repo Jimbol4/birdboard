@@ -4,11 +4,13 @@ namespace App;
 
 use App\Activity;
 use Illuminate\Database\Eloquent\Model;
+use App\RecordsActivity;
 
 class Project extends Model
 {
-    protected $guarded = [];
+    use RecordsActivity;
 
+    protected $guarded = [];
     protected $with = ['tasks'];
 
     public function path()
@@ -33,11 +35,6 @@ class Project extends Model
 
     public function activity()
     {
-        return $this->hasMany(Activity::class);
-    }
-
-    public function recordActivity($description)
-    {
-        $this->activity()->create(compact('description'));
+        return $this->hasMany(Activity::class)->latest();
     }
 }

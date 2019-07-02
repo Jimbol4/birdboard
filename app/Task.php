@@ -2,11 +2,13 @@
 
 namespace App;
 
-use App\Activity;
 use Illuminate\Database\Eloquent\Model;
+use App\RecordsActivity;
 
 class Task extends Model
 {
+    use RecordsActivity;
+
     protected $guarded = [];
 
     protected $touches = ['project'];
@@ -29,13 +31,13 @@ class Task extends Model
     {
         $this->update(['completed' => true]);
 
-        $this->project->recordActivity('completed_task');
+        $this->recordActivity('completed_task');
     }
 
     public function incomplete()
     {
         $this->update(['completed' => false]);
 
-        $this->project->recordActivity('uncompleted_task');
+        $this->recordActivity('uncompleted_task');
     }
 }
