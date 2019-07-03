@@ -26,8 +26,10 @@ class TriggerActivityTest extends TestCase
     }
 
     /** @test */
-    function updating_a_project() 
+    public function updating_a_project()
     {
+        $this->withoutExceptionHandling();
+
         $project = ProjectFactory::create();
 
         $originalTitle = $project->title;
@@ -36,9 +38,9 @@ class TriggerActivityTest extends TestCase
 
         $this->assertCount(2, $project->activity);
 
-        tap($project->activity->last(), function ($activity) use($originalTitle) {
+        tap($project->activity->last(), function ($activity) use ($originalTitle) {
             $this->assertEquals('updated', $activity->description);
-            
+
             $expected = [
                 'before' => ['title' => $originalTitle],
                 'after' => ['title' => 'Changed'],
@@ -90,7 +92,7 @@ class TriggerActivityTest extends TestCase
 
         $this->patch($project->tasks[0]->path(), ['body' => 'foobar', 'completed' => false]);
 
-        $this->assertCount(4, $project->fresh()->activity);    
+        $this->assertCount(4, $project->fresh()->activity);
 
         $this->assertEquals('uncompleted_task', $project->fresh()->activity->last()->description);
     }
@@ -105,6 +107,5 @@ class TriggerActivityTest extends TestCase
         $this->assertCount(3, $project->fresh()->activity);
         
         $this->assertEquals('deleted_task', $project->fresh()->activity->last()->description);
-
     }
 }

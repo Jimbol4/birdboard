@@ -17,6 +17,8 @@ class Task extends Model
         'completed' => 'boolean',
     ];
 
+    protected static $recordableEvents = ['created', 'deleted'];
+
     public function project()
     {
         return $this->belongsTo('App\Project');

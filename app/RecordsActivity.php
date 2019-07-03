@@ -5,9 +5,39 @@ namespace App;
 use Illuminate\Support\Arr;
 use App\Activity;
 
-trait RecordsActivity 
+trait RecordsActivity
 {
-    public $old = [];
+    public $oldAttributes = [];
+
+    public static function bootRecordsActivity()
+    {
+        foreach (self::recordableEvents() as $event) {
+            static::$event(function ($model) use ($event) {
+                if (class_basename($model) !== 'Project') {
+                    $event = "{$event}_" . strtolower(class_basename($model));
+                }
+
+                $model->recordActivity($event);
+            });
+
+            if ($event === 'updated') {
+                static::updating(function ($model) {
+                    $model->oldAttributes = $model->getOriginal();
+                });
+            }
+        }
+
+       
+    }
+
+    protected static function recordableEvents()
+    {
+        if (isset(static::$recordableEvents)) {
+            return static::$recordableEvents;
+        }
+        
+        return ['created', 'updated', 'deleted'];
+    }
 
     public function recordActivity($description)
     {
@@ -22,7 +52,7 @@ trait RecordsActivity
     {
         if ($this->wasChanged()) {
             return [
-                'before' => Arr::except(array_diff($this->old, $this->getAttributes()), 'updated_at'),
+                'before' => Arr::except(array_diff($this->oldAttributes, $this->getAttributes()), 'updated_at'),
                 'after' => Arr::except($this->getChanges(), 'updated_at'),
             ];
         }
