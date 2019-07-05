@@ -144,4 +144,36 @@ class ManageProjectsTest extends TestCase
         $this->patch($project->path(), ['notes' => 'I should not be able to update this'])
             ->assertStatus(403);
     }
+
+    /** @test */
+    public function a_user_can_delete_a_project()
+    {
+        $project = ProjectFactory::ownedBy($this->signIn())->create();
+
+        $this->delete($project->path())
+            ->assertRedirect('/projects');
+
+        $this->assertDatabaseMissing('projects', $project->only('id'));
+    }
+
+    /** @test */
+    public function users_cannot_delete_other_projects()
+    {   
+        $this->signIn();
+        $project = ProjectFactory::create();
+
+        $this->delete($project->path())
+            ->assertStatus(403);
+    }
+
+    /** @test */
+    public function guests_cannot_delete_other_projects()
+    {   
+        $project = ProjectFactory::create();
+
+        $this->delete($project->path())
+            ->assertRedirect('/login');
+
+        $this->assertDatabaseHas('projects', $project->only('id'));
+    }
 }

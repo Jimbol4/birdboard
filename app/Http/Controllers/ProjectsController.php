@@ -96,8 +96,12 @@ class ProjectsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Project $project)
     {
-        //
+        $this->authorize('delete', $project);
+
+        $project->delete();
+
+        return redirect('/projects');
     }
 }

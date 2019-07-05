@@ -22,6 +22,6 @@ class ProjectsPolicy
 
     public function delete(User $user, Project $project)
     {
-        return $user->id === $project->owner_id;
+        return $user->is($project->owner);
     }
 }
