@@ -16,7 +16,7 @@ class ProjectsController extends Controller
      */
     public function index()
     {
-        $projects = auth()->user()->projects;
+        $projects = auth()->user()->accessibleProjects();
 
         return view('projects.index', compact('projects'));
     }
@@ -38,7 +38,7 @@ class ProjectsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {   
+    {
         $attributes = $this->validate($request, [
             'title' => 'required',
             'description' => 'required',
@@ -46,7 +46,7 @@ class ProjectsController extends Controller
         ]);
 
         $project = auth()->user()->projects()->create($attributes);
-        
+
         return redirect($project->path());
     }
 
@@ -84,7 +84,7 @@ class ProjectsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(UpdateProjectRequest $request, Project $project)
-    {   
+    {
         $request->persist();
 
         return redirect($project->path());

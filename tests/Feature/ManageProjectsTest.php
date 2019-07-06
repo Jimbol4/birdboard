@@ -28,7 +28,7 @@ class ManageProjectsTest extends TestCase
         $response = $this->post('/projects', $attributes);
 
         $project = Project::where($attributes)->first();
-        
+
         $response->assertRedirect($project->path());
 
         $this->get($project->path())
@@ -57,7 +57,7 @@ class ManageProjectsTest extends TestCase
 
     /** @test */
     public function a_user_can_update_a_projects_general_notes()
-    {   
+    {
         $this->withoutExceptionHandling();
 
         $project = ProjectFactory::ownedBy($this->signIn())->create();
@@ -98,7 +98,7 @@ class ManageProjectsTest extends TestCase
 
         $this->get($project->path() . '/edit')
             ->assertRedirect('login');
-        
+
         $this->get($project->path())
             ->assertRedirect('login');
     }
@@ -121,6 +121,15 @@ class ManageProjectsTest extends TestCase
         $this->get($project->path())
             ->assertSee($project->title)
             ->assertSee(str_limit($project->description, 100));
+    }
+
+    /** @test */
+    public function a_user_can_see_all_projects_they_have_been_invited_to_on_their_dashboard()
+    {
+        $project = tap(ProjectFactory::create())->invite($this->signIn());
+
+        $this->get('/projects')
+            ->assertSee($project->title);
     }
 
     /** @test */
@@ -158,7 +167,7 @@ class ManageProjectsTest extends TestCase
 
     /** @test */
     public function users_cannot_delete_other_projects()
-    {   
+    {
         $this->signIn();
         $project = ProjectFactory::create();
 
@@ -168,7 +177,7 @@ class ManageProjectsTest extends TestCase
 
     /** @test */
     public function guests_cannot_delete_other_projects()
-    {   
+    {
         $project = ProjectFactory::create();
 
         $this->delete($project->path())
