@@ -6,7 +6,12 @@
                 <p class="text-gray-500 text-sm font-normal">
                     <a href="/projects">My projects</a> / {{ $project->title }}
                 </p>
-                <a href="{{ $project->path() . '/edit' }}" class="button">Edit Project</a>
+                <div>
+                    @foreach ($project->members as $member)
+                        <img src="https://gravatar.com/avatar/{{ md5($member->email) }}?s=60" alt="{{ $member->name }}'s avatar" class="rounded-full w-8">
+                    @endforeach
+                    <a href="{{ $project->path() . '/edit' }}" class="button">Edit Project</a>
+                </div>
             </div>
     </header>
 
@@ -62,6 +67,9 @@
                     @include('projects.card')
                 </div>
 
+                @can ('manage', $project)
+                    @include ('projects.invite')
+                @endcan
                 @include('projects.activity.card')
             </div>
         </div>

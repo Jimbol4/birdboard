@@ -22,6 +22,16 @@ class ProjectsPolicy
 
     public function delete(User $user, Project $project)
     {
-        return $user->is($project->owner) || $project->members->contains($user);
+        return $user->is($project->owner);
+    }
+
+    public function owner(User $user, Project $project)
+    {
+        return $user->is($project->owner);
+    }
+
+    public function manage(User $user, Project $project)
+    {
+        return $user->is($project->owner);
     }
 }

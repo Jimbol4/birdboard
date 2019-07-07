@@ -16,22 +16,9 @@ class ManageProjectsTest extends TestCase
     public function a_user_can_create_a_project()
     {
         $this->signIn();
-
         $this->get('/projects/create')->assertStatus(200);
-
-        $attributes = [
-            'title' => $this->faker->sentence,
-            'description' => $this->faker->sentence,
-            'notes' => 'General note here.',
-        ];
-
-        $response = $this->post('/projects', $attributes);
-
-        $project = Project::where($attributes)->first();
-
-        $response->assertRedirect($project->path());
-
-        $this->get($project->path())
+        $this->followingRedirects()
+            ->post('/projects', $attributes = factory(Project::class)->raw())
             ->assertSee($attributes['title'])
             ->assertSee($attributes['description'])
             ->assertSee($attributes['notes']);
@@ -184,5 +171,17 @@ class ManageProjectsTest extends TestCase
             ->assertRedirect('/login');
 
         $this->assertDatabaseHas('projects', $project->only('id'));
+    }
+
+    /** @test */
+    public function invited_users_cannot_delete_other_projects()
+    {
+        $user = $this->signIn();
+        $project = ProjectFactory::create();
+
+        $project->invite($user);
+
+        $this->delete($project->path())
+            ->assertStatus(403);
     }
 }
